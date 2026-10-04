@@ -327,6 +327,10 @@ def _step_provider(
             value="atlascloud",
         ),
         Choice(
+            title="Cheaper Inference (aggregator — GPT, Claude, Gemini, DeepSeek, etc.)",
+            value="cheaperinference",
+        ),
+        Choice(
             title="Requesty (aggregator — OpenAI, Anthropic, Gemini, xAI, etc.)",
             value="requesty",
         ),

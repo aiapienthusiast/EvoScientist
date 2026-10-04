@@ -49,6 +49,7 @@ class TestModelsRegistry:
         assert "moonshot" in providers
         assert "kimi-coding" in providers
         assert "atlascloud" in providers
+        assert "cheaperinference" in providers
         assert "novita" in providers
         assert "xiaomi" in providers
         assert "xiaomi-token-plan" in providers
@@ -76,6 +77,7 @@ class TestModelsRegistry:
             "moonshot",
             "kimi-coding",
             "atlascloud",
+            "cheaperinference",
             "novita",
             "xiaomi",
             "xiaomi-token-plan",
@@ -105,6 +107,8 @@ class TestModelsRegistry:
         atlas_models = get_models_for_provider("atlascloud")
         assert ("qwen3.5-27b", "qwen/qwen3.5-27b") in atlas_models
         assert get_models_for_provider("atlas") == []
+        cheaperinference_models = get_models_for_provider("cheaperinference")
+        assert ("deepseek-v4-flash", "deepseek-v4-flash") in cheaperinference_models
         novita_models = get_models_for_provider("novita")
         assert ("kimi-k3", "moonshotai/kimi-k3") in novita_models
 
@@ -428,6 +432,30 @@ class TestThirdPartyRouting:
         assert (
             _lookup_host_or_compat("https://api.atlascloud.ai/v1", "openai")
             == "atlascloud"
+        )
+
+    @patch("EvoScientist.llm.models.init_chat_model")
+    def test_cheaperinference_routes_through_openai(self, mock_init, monkeypatch):
+        """Cheaper Inference should use OpenAI-compatible routing with its default URL."""
+        mock_init.return_value = "mock_model"
+        monkeypatch.setenv("CHEAPERINFERENCE_API_KEY", "ci-key-123")
+
+        get_chat_model("deepseek-v4-flash", provider="cheaperinference")
+
+        call_kwargs = mock_init.call_args[1]
+        assert call_kwargs["model"] == "deepseek-v4-flash"
+        assert call_kwargs["model_provider"] == "openai"
+        assert call_kwargs["base_url"] == "https://api.cheaperinference.com/v1"
+        assert call_kwargs["api_key"] == "ci-key-123"
+        assert "reasoning" not in call_kwargs
+
+    def test_cheaperinference_host_maps_to_provider(self):
+        """Provider error envelopes should identify Cheaper Inference by host."""
+        from EvoScientist.llm.errors import _lookup_host_or_compat
+
+        assert (
+            _lookup_host_or_compat("https://api.cheaperinference.com/v1", "openai")
+            == "cheaperinference"
         )
 
     @patch("EvoScientist.llm.models.init_chat_model")

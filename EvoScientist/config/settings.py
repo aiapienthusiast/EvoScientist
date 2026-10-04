@@ -186,6 +186,7 @@ class EvoScientistConfig:
     siliconflow_api_key: str = ""
     openrouter_api_key: str = ""
     atlascloud_api_key: str = ""
+    cheaperinference_api_key: str = ""
     requesty_api_key: str = ""
     novita_api_key: str = ""
     mimo_api_key: str = ""
@@ -962,6 +963,7 @@ _ENV_MAPPINGS = {
     "siliconflow_api_key": "SILICONFLOW_API_KEY",
     "openrouter_api_key": "OPENROUTER_API_KEY",
     "atlascloud_api_key": "ATLASCLOUD_API_KEY",
+    "cheaperinference_api_key": "CHEAPERINFERENCE_API_KEY",
     "requesty_api_key": "REQUESTY_API_KEY",
     "novita_api_key": "NOVITA_API_KEY",
     "mimo_api_key": "MIMO_API_KEY",
@@ -1173,6 +1175,10 @@ def apply_config_to_env(config: EvoScientistConfig) -> None:
         os.environ["OPENROUTER_API_KEY"] = config.openrouter_api_key
     if config.atlascloud_api_key and not os.environ.get("ATLASCLOUD_API_KEY"):
         os.environ["ATLASCLOUD_API_KEY"] = config.atlascloud_api_key
+    if config.cheaperinference_api_key and not os.environ.get(
+        "CHEAPERINFERENCE_API_KEY"
+    ):
+        os.environ["CHEAPERINFERENCE_API_KEY"] = config.cheaperinference_api_key
     if config.requesty_api_key and not os.environ.get("REQUESTY_API_KEY"):
         os.environ["REQUESTY_API_KEY"] = config.requesty_api_key
     if config.novita_api_key and not os.environ.get("NOVITA_API_KEY"):

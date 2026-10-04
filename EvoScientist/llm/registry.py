@@ -18,6 +18,7 @@ _DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 _DASHSCOPE_CODE_BASE_URL = "https://coding.dashscope.aliyuncs.com/v1"
 
 _ATLASCLOUD_BASE_URL = "https://api.atlascloud.ai/v1"
+_CHEAPERINFERENCE_BASE_URL = "https://api.cheaperinference.com/v1"
 _MOONSHOT_BASE_URL = "https://api.moonshot.cn/v1"
 _KIMI_CODING_BASE_URL = "https://api.kimi.com/coding/"
 _REQUESTY_BASE_URL = "https://router.requesty.ai/v1"
@@ -29,6 +30,7 @@ _XIAOMI_TOKEN_PLAN_BASE_URL = "https://token-plan-cn.xiaomimimo.com/anthropic"
 # Maps provider name → (base_url or None, env var for API key).
 _OPENAI_ROUTED_PROVIDERS: dict[str, tuple[str | None, str]] = {
     "atlascloud": (_ATLASCLOUD_BASE_URL, "ATLASCLOUD_API_KEY"),
+    "cheaperinference": (_CHEAPERINFERENCE_BASE_URL, "CHEAPERINFERENCE_API_KEY"),
     "moonshot": (_MOONSHOT_BASE_URL, "MOONSHOT_API_KEY"),
     "siliconflow": (_SILICONFLOW_BASE_URL, "SILICONFLOW_API_KEY"),
     "zhipu": (_ZHIPU_BASE_URL, "ZHIPU_API_KEY"),
@@ -88,6 +90,8 @@ _MODEL_ENTRIES: list[tuple[str, str, str]] = [
     ("gpt-5-mini", "gpt-5-mini", "custom-openai"),
     # Atlas Cloud (OpenAI-compatible)
     ("qwen3.5-27b", "qwen/qwen3.5-27b", "atlascloud"),
+    # Cheaper Inference (OpenAI-compatible aggregator)
+    ("deepseek-v4-flash", "deepseek-v4-flash", "cheaperinference"),
     # Anthropic (current generation)
     ("claude-fable-5-1", "claude-fable-5-1", "anthropic"),
     ("claude-fable-5", "claude-fable-5", "anthropic"),

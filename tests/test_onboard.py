@@ -429,6 +429,72 @@ class TestValidateAtlasCloudKey:
         assert "inconclusive" in msg.lower()
 
 
+class TestValidateCheaperInferenceKey:
+    def test_empty_key_skipped(self):
+        from EvoScientist.config.onboard.validators import (
+            validate_cheaperinference_key,
+        )
+
+        is_valid, msg = validate_cheaperinference_key("")
+        assert is_valid is True
+        assert "Skipped" in msg
+
+    @pytest.mark.parametrize("status", [200, 404])
+    def test_accepts_authenticated_sentinel_statuses(self, status):
+        from EvoScientist.config.onboard.validators import (
+            validate_cheaperinference_key,
+        )
+
+        with patch("httpx.post") as mock_post:
+            mock_post.return_value.status_code = status
+            is_valid, msg = validate_cheaperinference_key("ci-key")
+
+        assert is_valid is True
+        assert msg == "Valid"
+        payload = mock_post.call_args.kwargs["json"]
+        assert payload["model"] == "cheaperinference/auth-preflight"
+        assert payload["max_tokens"] == 1
+
+    @pytest.mark.parametrize("status", [401, 403])
+    def test_auth_rejection_is_invalid(self, status):
+        from EvoScientist.config.onboard.validators import (
+            validate_cheaperinference_key,
+        )
+
+        with patch("httpx.post") as mock_post:
+            mock_post.return_value.status_code = status
+            is_valid, msg = validate_cheaperinference_key("bad-key")
+
+        assert is_valid is False
+        assert msg == "Invalid API key"
+
+    def test_insufficient_balance_means_valid_key(self):
+        """402 fires before model resolution, so auth passed — key is valid."""
+        from EvoScientist.config.onboard.validators import (
+            validate_cheaperinference_key,
+        )
+
+        with patch("httpx.post") as mock_post:
+            mock_post.return_value.status_code = 402
+            is_valid, msg = validate_cheaperinference_key("ci-key")
+
+        assert is_valid is True
+        assert "insufficient balance" in msg.lower()
+
+    @pytest.mark.parametrize("status", [400, 429, 500, 503])
+    def test_transient_status_is_inconclusive(self, status):
+        from EvoScientist.config.onboard.validators import (
+            validate_cheaperinference_key,
+        )
+
+        with patch("httpx.post") as mock_post:
+            mock_post.return_value.status_code = status
+            is_valid, msg = validate_cheaperinference_key("ci-key")
+
+        assert is_valid is False
+        assert "inconclusive" in msg.lower()
+
+
 class TestValidateNovitaKey:
     def test_empty_key_skipped(self):
         from EvoScientist.config.onboard.validators import validate_novita_key

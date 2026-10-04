@@ -16,6 +16,7 @@ from .style import QMARK, WIZARD_STYLE, console
 from .validators import (
     validate_anthropic_key,
     validate_atlascloud_key,
+    validate_cheaperinference_key,
     validate_dashscope_code_key,
     validate_dashscope_key,
     validate_deepseek_key,
@@ -77,6 +78,12 @@ def _provider_key_info(config: EvoScientistConfig, provider: str):
             "Atlas Cloud",
             config.atlascloud_api_key or os.environ.get("ATLASCLOUD_API_KEY", ""),
             validate_atlascloud_key,
+        ),
+        "cheaperinference": (
+            "Cheaper Inference",
+            config.cheaperinference_api_key
+            or os.environ.get("CHEAPERINFERENCE_API_KEY", ""),
+            validate_cheaperinference_key,
         ),
         "requesty": (
             "Requesty",

@@ -364,6 +364,49 @@ def validate_atlascloud_key(api_key: str) -> tuple[bool, str]:
         return False, f"Error: {e}"
 
 
+def validate_cheaperinference_key(api_key: str) -> tuple[bool, str]:
+    """Validate a Cheaper Inference key with a nonexistent sentinel model.
+
+    The probe deliberately targets a nonexistent sentinel model. A 404 means
+    authentication passed and model resolution failed; 200 also confirms
+    authentication if the sentinel unexpectedly resolves. A 401/403 means the
+    key was rejected. Other statuses remain inconclusive until verified.
+    """
+    if not api_key:
+        return True, "Skipped (no key provided)"
+
+    try:
+        import httpx
+
+        resp = httpx.post(
+            "https://api.cheaperinference.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "cheaperinference/auth-preflight",
+                "messages": [{"role": "user", "content": "ping"}],
+                "max_tokens": 1,
+            },
+            timeout=10,
+        )
+        if resp.status_code in (200, 404):
+            return True, "Valid"
+        # Cheaper Inference uses a prepaid wallet: a valid key on an
+        # uncredited account gets 402 from the sentinel probe.
+        if resp.status_code == 402:
+            return True, "Valid (insufficient balance — top up to use)"
+        if resp.status_code in (401, 403):
+            return False, "Invalid API key"
+        return False, f"Validation inconclusive (HTTP {resp.status_code})"
+    except Exception as e:
+        classified = _classify_validation_error(e)
+        if classified is not None:
+            return classified
+        return False, f"Error: {e}"
+
+
 def validate_requesty_key(api_key: str) -> tuple[bool, str]:
     """Validate a Requesty API key against the router's auth layer.
 

@@ -34,6 +34,7 @@ VALID_PROVIDERS: frozenset[str] = frozenset(
         "siliconflow",
         "openrouter",
         "atlascloud",
+        "cheaperinference",
         "requesty",
         "novita",
         "custom-openai",
